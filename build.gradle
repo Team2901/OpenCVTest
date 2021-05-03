@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+group 'team2901'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    compile  group: 'org.openpnp', name: 'opencv', version: '3.4.2-0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+javafx {
+    version = '12'
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.graphics', 'javafx.base']
+}
