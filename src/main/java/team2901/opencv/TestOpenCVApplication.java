@@ -1,6 +1,8 @@
 package team2901.opencv;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -47,6 +49,8 @@ public class TestOpenCVApplication extends Application {
     private Mat editImage;
 
     private Transform selectedTransform = Transform.ORIGINAL;
+
+    private int blurKernals = 1;
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -148,6 +152,26 @@ public class TestOpenCVApplication extends Application {
 
         editMenu.getItems().add(buildTransformMenuItem("Original",  toggleGroup, Transform.ORIGINAL));
         editMenu.getItems().add(buildTransformMenuItem("Blur",  toggleGroup, Transform.BLUR));
+        Slider slider = new Slider(1, 100, 1);
+        slider.setShowTickLabels(true);
+        slider.setShowTickMarks(true);
+        slider.setMajorTickUnit(25);
+        slider.setBlockIncrement(10);
+
+        MenuItem sliderItem = new MenuItem();
+        sliderItem.setGraphic(slider);
+        editMenu.getItems().add(sliderItem);
+
+        slider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
+                blurKernals = newValue.intValue();
+                System.out.println(blurKernals);
+                try {
+                    performTransform();
+                } catch(IOException e){}
+
+            }
+        });
 
         final Menu menuEffect = new Menu("RGB Channel");
         menuEffect.getItems().add(buildTransformMenuItem("Red",  toggleGroup, Transform.RED_CHANNEL));
@@ -245,7 +269,7 @@ public class TestOpenCVApplication extends Application {
             case GRAY_CHANNEL:
                 return ImageHelper.getGrayscaleMat(originalImage);
             case BLUR:
-                return ImageHelper.getBlurMat(originalImage, 3);
+                return ImageHelper.getBlurMat(originalImage, blurKernals);
             case ORIGINAL:
             default:
                 return originalImage;
