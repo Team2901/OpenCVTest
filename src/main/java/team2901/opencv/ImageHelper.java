@@ -11,14 +11,14 @@ import java.util.List;
 public class ImageHelper {
 
     public static Mat getChannelMat(Mat originalImage, int channel) {
-        // TODO implement this code
-        System.out.println("NOT IMPLEMENTED YET");
-        return originalImage;
+        List<Mat> list = new ArrayList<Mat>();
+        Core.split(originalImage, list);
+        return list.get(channel);
     }
 
     public static Mat getGrayscaleMat(Mat originalImage) {
-        // TODO implement this code
-        System.out.println("NOT IMPLEMENTED YET");
-        return originalImage;
+        Mat mat = new Mat();
+        Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_BGR2GRAY);
+        return mat;
     }
 }
