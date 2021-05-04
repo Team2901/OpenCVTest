@@ -6,5 +6,7 @@ public enum Transform {
     GREEN_CHANNEL,
     RED_CHANNEL,
     GRAY_CHANNEL,
-    BLUR
+    BLUR,
+    CANNY,
+    REMOVE_BACKGROUND
 }

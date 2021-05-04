@@ -50,7 +50,8 @@ public class TestOpenCVApplication extends Application {
 
     private Transform selectedTransform = Transform.ORIGINAL;
 
-    private int blurKernals = 1;
+    private int blurKernels = 1;
+    private int threshold = 1;
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -85,6 +86,7 @@ public class TestOpenCVApplication extends Application {
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(buildFileMenu());
         menuBar.getMenus().add(buildTransformMenu());
+        menuBar.getMenus().add(buildOptionsMenu());
 
         // Build image views
         transformImageView = new ImageView();
@@ -152,26 +154,8 @@ public class TestOpenCVApplication extends Application {
 
         editMenu.getItems().add(buildTransformMenuItem("Original",  toggleGroup, Transform.ORIGINAL));
         editMenu.getItems().add(buildTransformMenuItem("Blur",  toggleGroup, Transform.BLUR));
-        Slider slider = new Slider(1, 100, 1);
-        slider.setShowTickLabels(true);
-        slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(25);
-        slider.setBlockIncrement(10);
-
-        MenuItem sliderItem = new MenuItem();
-        sliderItem.setGraphic(slider);
-        editMenu.getItems().add(sliderItem);
-
-        slider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
-                blurKernals = newValue.intValue();
-                System.out.println(blurKernals);
-                try {
-                    performTransform();
-                } catch(IOException e){}
-
-            }
-        });
+        editMenu.getItems().add(buildTransformMenuItem("Canny",  toggleGroup, Transform.CANNY));
+        editMenu.getItems().add(buildTransformMenuItem("Remove Background",  toggleGroup, Transform.REMOVE_BACKGROUND));
 
         final Menu menuEffect = new Menu("RGB Channel");
         menuEffect.getItems().add(buildTransformMenuItem("Red",  toggleGroup, Transform.RED_CHANNEL));
@@ -182,6 +166,55 @@ public class TestOpenCVApplication extends Application {
         editMenu.getItems().addAll(menuEffect);
 
         return editMenu;
+    }
+
+    public Menu buildOptionsMenu() {
+
+        final Menu optionsMenu = new Menu("Options");
+
+        Slider kernelSlider = new Slider(1, 100, 1);
+        kernelSlider.setShowTickLabels(true);
+        kernelSlider.setShowTickMarks(true);
+        kernelSlider.setMajorTickUnit(25);
+        kernelSlider.setBlockIncrement(10);
+
+        MenuItem kernelSliderItem = new MenuItem("kernels");
+        kernelSliderItem.setGraphic(kernelSlider);
+        optionsMenu.getItems().add(kernelSliderItem);
+
+        kernelSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
+                blurKernels = newValue.intValue();
+                System.out.println(blurKernels);
+                try {
+                    performTransform();
+                } catch(IOException e){}
+
+            }
+        });
+
+        Slider thresholdSlider = new Slider(1, 100, 1);
+        thresholdSlider.setShowTickLabels(true);
+        thresholdSlider.setShowTickMarks(true);
+        thresholdSlider.setMajorTickUnit(25);
+        thresholdSlider.setBlockIncrement(10);
+
+        MenuItem thresholdSliderItem = new MenuItem("threshold");
+        thresholdSliderItem.setGraphic(thresholdSlider);
+        optionsMenu.getItems().add(thresholdSliderItem);
+
+        thresholdSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
+                threshold = newValue.intValue();
+                System.out.println(threshold);
+                try {
+                    performTransform();
+                } catch(IOException e){}
+
+            }
+        });
+
+        return optionsMenu;
     }
 
     private RadioMenuItem buildTransformMenuItem(final String name, final ToggleGroup toggleGroup, final Transform transform) {
@@ -261,15 +294,19 @@ public class TestOpenCVApplication extends Application {
 
         switch (selectedTransform) {
             case BLUE_CHANNEL:
-                return ImageHelper.getChannelMat(originalImage, 0);
+                return ImageHelper.getChannelMat(originalImage, 0, blurKernels);
             case GREEN_CHANNEL:
-                return ImageHelper.getChannelMat(originalImage, 1);
+                return ImageHelper.getChannelMat(originalImage, 1, blurKernels);
             case RED_CHANNEL:
-                return ImageHelper.getChannelMat(originalImage, 2);
+                return ImageHelper.getChannelMat(originalImage, 2, blurKernels);
             case GRAY_CHANNEL:
-                return ImageHelper.getGrayscaleMat(originalImage);
+                return ImageHelper.getGrayscaleMat(originalImage, blurKernels);
             case BLUR:
-                return ImageHelper.getBlurMat(originalImage, blurKernals);
+                return ImageHelper.getBlurMat(originalImage, blurKernels);
+            case CANNY:
+                return ImageHelper.getCannyMat(originalImage, blurKernels, threshold);
+            case REMOVE_BACKGROUND:
+                return ImageHelper.doBackgroundRemoval(originalImage, blurKernels);
             case ORIGINAL:
             default:
                 return originalImage;
