@@ -147,6 +147,7 @@ public class TestOpenCVApplication extends Application {
         final ToggleGroup toggleGroup = new ToggleGroup();
 
         editMenu.getItems().add(buildTransformMenuItem("Original",  toggleGroup, Transform.ORIGINAL));
+        editMenu.getItems().add(buildTransformMenuItem("Blur",  toggleGroup, Transform.BLUR));
 
         final Menu menuEffect = new Menu("RGB Channel");
         menuEffect.getItems().add(buildTransformMenuItem("Red",  toggleGroup, Transform.RED_CHANNEL));
@@ -243,6 +244,8 @@ public class TestOpenCVApplication extends Application {
                 return ImageHelper.getChannelMat(originalImage, 2);
             case GRAY_CHANNEL:
                 return ImageHelper.getGrayscaleMat(originalImage);
+            case BLUR:
+                return ImageHelper.getBlurMat(originalImage, 3);
             case ORIGINAL:
             default:
                 return originalImage;

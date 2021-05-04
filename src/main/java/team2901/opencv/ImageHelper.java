@@ -21,4 +21,11 @@ public class ImageHelper {
         Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_BGR2GRAY);
         return mat;
     }
+
+    public static Mat getBlurMat(Mat originalImage, int kernels) {
+        Mat mat = getGrayscaleMat(originalImage);
+        Mat edgeMat = new Mat();
+        Imgproc.blur(mat, edgeMat, new Size(kernels, kernels));
+        return edgeMat;
+    }
 }

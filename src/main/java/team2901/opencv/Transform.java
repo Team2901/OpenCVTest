@@ -5,5 +5,6 @@ public enum Transform {
     BLUE_CHANNEL,
     GREEN_CHANNEL,
     RED_CHANNEL,
-    GRAY_CHANNEL
+    GRAY_CHANNEL,
+    BLUR
 }
