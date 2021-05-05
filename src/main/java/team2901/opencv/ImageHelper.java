@@ -6,13 +6,49 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.opencv.core.CvType.CV_8UC1;
+
+/*
+ * resources
+ *
+ * https://opencv-java-tutorials.readthedocs.io/en/latest/07-image-segmentation.html#background-removal-result
+ *
+ * https://www.analyticsvidhya.com/blog/2019/03/opencv-functions-computer-vision-python/
+ * - this is in python but may be useful
+ */
 public class ImageHelper {
 
+    public static Mat getChannelMatGray(Mat originalImage, int channel, int kernels) {
+        Mat blurImage = getBlurMat(originalImage, kernels);
+        List<Mat> blurPlanes = new ArrayList<>();
+        Core.split(blurImage, blurPlanes);
+        return blurPlanes.get(channel);
+    }
+
     public static Mat getChannelMat(Mat originalImage, int channel, int kernels) {
-        Mat mat = getBlurMat(originalImage, kernels);
-        List<Mat> list = new ArrayList<>();
-        Core.split(mat, list);
-        return list.get(channel);
+
+        // Blur the image
+        Mat blurImage = getBlurMat(originalImage, kernels);
+
+        // Split the image into BGR planes
+        List<Mat> blurPlanes = new ArrayList<>();
+        Core.split(blurImage, blurPlanes);
+
+        // Create BGR planes of all zeros
+        // See https://stackoverflow.com/questions/6699374/access-to-each-separate-channel-in-opencv
+        List<Mat> outputPlanes = new ArrayList<>();
+        outputPlanes.add(Mat.zeros(blurImage.size(), CV_8UC1));
+        outputPlanes.add(Mat.zeros(blurImage.size(), CV_8UC1));
+        outputPlanes.add(Mat.zeros(blurImage.size(), CV_8UC1));
+
+        // Set the planes for the desired channel
+        outputPlanes.set(channel, blurPlanes.get(channel));
+
+        // Merge the planes together
+        Mat dest = new Mat();
+        Core.merge(outputPlanes, dest);
+
+        return dest;
     }
 
     public static Mat getGrayscaleMat(Mat originalImage, int kernels) {
