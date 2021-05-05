@@ -119,7 +119,33 @@ public class ImageHelper {
         }
 
         // return the average hue of the image
-        return average = average / hsvImg.size().height / hsvImg.size().width;
+        return average / hsvImg.size().height / hsvImg.size().width;
+    }
+
+    public static Mat getISpyMat(Mat originalImage, Mat template) {
+
+        // https://riptutorial.com/opencv/example/22915/template-matching-with-java
+
+        // TODO how to improve threshold to handle low confidence matches?
+        // TODO how to detect when the template is rotated?
+        // TODO how to detect when the template is scaled?
+
+        Mat source = originalImage.clone();
+
+        Mat outputImage = new Mat();
+        int machMethod = Imgproc.TM_CCOEFF;
+
+        //Template matching method
+        Imgproc.matchTemplate(source, template, outputImage, machMethod);
+
+        Core.MinMaxLocResult mmr = Core.minMaxLoc(outputImage);
+        Point matchLoc = mmr.maxLoc;
+
+        //Draw rectangle on result image
+        Imgproc.rectangle(source, matchLoc, new Point(matchLoc.x + template.cols(),
+                matchLoc.y + template.rows()), new Scalar(0, 255, 0));
+
+        return source;
     }
 
 }

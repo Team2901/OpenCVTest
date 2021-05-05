@@ -8,5 +8,6 @@ public enum Transform {
     GRAY_CHANNEL,
     BLUR,
     CANNY,
-    REMOVE_BACKGROUND
+    REMOVE_BACKGROUND,
+    I_SPY
 }

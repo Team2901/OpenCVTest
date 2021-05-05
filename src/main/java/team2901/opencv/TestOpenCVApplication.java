@@ -34,6 +34,7 @@ import java.util.concurrent.CountDownLatch;
 public class TestOpenCVApplication extends Application {
 
     public static final String SAMPLE_IMAGES_DIR = "src" + File.separator + "sample-images" + File.separator;
+    public static final String TEMPLATES_DIR = SAMPLE_IMAGES_DIR + "templates" + File.separator;
     public static final String DEFAULT_IMAGE = SAMPLE_IMAGES_DIR + "open-cv-logo.png";
 
     public static final CountDownLatch latch = new CountDownLatch(1);
@@ -44,6 +45,7 @@ public class TestOpenCVApplication extends Application {
     private ImageView transformImageView;
 
     private Mat originalImage;
+    private Mat templateImage;
     private Mat editImage;
 
     private Transform selectedTransform = Transform.ORIGINAL;
@@ -155,13 +157,22 @@ public class TestOpenCVApplication extends Application {
         editMenu.getItems().add(buildTransformMenuItem("Canny",  toggleGroup, Transform.CANNY));
         editMenu.getItems().add(buildTransformMenuItem("Remove Background",  toggleGroup, Transform.REMOVE_BACKGROUND));
 
-        final Menu menuEffect = new Menu("RGB Channel");
-        menuEffect.getItems().add(buildTransformMenuItem("Red",  toggleGroup, Transform.RED_CHANNEL));
-        menuEffect.getItems().add(buildTransformMenuItem("Green",  toggleGroup, Transform.GREEN_CHANNEL));
-        menuEffect.getItems().add(buildTransformMenuItem("Blue",  toggleGroup, Transform.BLUE_CHANNEL));
-        menuEffect.getItems().add(buildTransformMenuItem("Gray",  toggleGroup, Transform.GRAY_CHANNEL));
+        final Menu channelMenu = new Menu("RGB Channel");
+        channelMenu.getItems().add(buildTransformMenuItem("Red",  toggleGroup, Transform.RED_CHANNEL));
+        channelMenu.getItems().add(buildTransformMenuItem("Green",  toggleGroup, Transform.GREEN_CHANNEL));
+        channelMenu.getItems().add(buildTransformMenuItem("Blue",  toggleGroup, Transform.BLUE_CHANNEL));
+        channelMenu.getItems().add(buildTransformMenuItem("Gray",  toggleGroup, Transform.GRAY_CHANNEL));
 
-        editMenu.getItems().addAll(menuEffect);
+        editMenu.getItems().addAll(channelMenu);
+
+        final Menu iSpyMenu = new Menu("I Spy");
+        iSpyMenu.getItems().add(buildTemplateTransformMenuItem("Box",  toggleGroup, Transform.I_SPY, "i_spy_box.png"));
+        iSpyMenu.getItems().add(buildTemplateTransformMenuItem("Crayon",  toggleGroup, Transform.I_SPY, "i_spy_crayon.png"));
+        iSpyMenu.getItems().add(buildTemplateTransformMenuItem("Fish",  toggleGroup, Transform.I_SPY, "i_spy_fish.png"));
+        iSpyMenu.getItems().add(buildTemplateTransformMenuItem("Key",  toggleGroup, Transform.I_SPY, "i_spy_key.png"));
+        iSpyMenu.getItems().add(buildTemplateTransformMenuItem("Marble",  toggleGroup, Transform.I_SPY, "i_spy_marble_1.png"));
+
+        editMenu.getItems().add(iSpyMenu);
 
         return editMenu;
     }
@@ -219,6 +230,22 @@ public class TestOpenCVApplication extends Application {
         menuItem.setSelected(transform == selectedTransform);
         menuItem.setOnAction(e -> {
             try {
+                setSelectedTransform(transform);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+        return menuItem;
+    }
+
+    private RadioMenuItem buildTemplateTransformMenuItem(final String name, final ToggleGroup toggleGroup, final Transform transform, final String templateName) {
+
+        final RadioMenuItem menuItem = new RadioMenuItem(name);
+        menuItem.setToggleGroup(toggleGroup);
+        menuItem.setSelected(transform == selectedTransform);
+        menuItem.setOnAction(e -> {
+            try {
+                templateImage = loadImageFromFile(TEMPLATES_DIR + templateName);
                 setSelectedTransform(transform);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
@@ -316,6 +343,8 @@ public class TestOpenCVApplication extends Application {
                 return ImageHelper.getCannyMat(originalImage, blurKernels, threshold);
             case REMOVE_BACKGROUND:
                 return ImageHelper.doBackgroundRemoval(originalImage, blurKernels);
+            case I_SPY:
+                return ImageHelper.getISpyMat(originalImage, templateImage);
             case ORIGINAL:
             default:
                 return originalImage;
