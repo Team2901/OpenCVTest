@@ -1,8 +1,6 @@
 package team2901.opencv;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -182,15 +180,14 @@ public class TestOpenCVApplication extends Application {
         kernelSliderItem.setGraphic(kernelSlider);
         optionsMenu.getItems().add(kernelSliderItem);
 
-        kernelSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
-                blurKernels = newValue.intValue();
-                System.out.println(blurKernels);
-                try {
-                    performTransform();
-                } catch(IOException e){}
-
+        kernelSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            blurKernels = newValue.intValue();
+            System.out.println(blurKernels);
+            try {
+                performTransform();
+            } catch (IOException ignored) {
             }
+
         });
 
         Slider thresholdSlider = new Slider(1, 100, 1);
@@ -203,15 +200,13 @@ public class TestOpenCVApplication extends Application {
         thresholdSliderItem.setGraphic(thresholdSlider);
         optionsMenu.getItems().add(thresholdSliderItem);
 
-        thresholdSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
-                threshold = newValue.intValue();
-                System.out.println(threshold);
-                try {
-                    performTransform();
-                } catch(IOException e){}
+        thresholdSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            threshold = newValue.intValue();
+            System.out.println(threshold);
+            try {
+                performTransform();
+            } catch(IOException ignored){}
 
-            }
         });
 
         return optionsMenu;
@@ -238,12 +233,20 @@ public class TestOpenCVApplication extends Application {
     }
 
     public void loadImage(String filePath) throws IOException {
-        originalImage = Imgcodecs.imread(filePath);
+        originalImage = loadImageFromFile(filePath);
         performTransform();
     }
 
     public void writeImage(String filePath) throws IOException {
-        Imgcodecs.imwrite(filePath, editImage);
+        writeImageToFile(filePath, editImage);
+    }
+
+    public Mat loadImageFromFile(String filePath) {
+        return Imgcodecs.imread(filePath);
+    }
+
+    public void writeImageToFile(String filePath, Mat image) {
+        Imgcodecs.imwrite(filePath, image);
     }
 
     public void performTransform() throws IOException {
@@ -259,7 +262,7 @@ public class TestOpenCVApplication extends Application {
         stage.sizeToScene() ;
     }
 
-    public void displayImage(Mat image, ImageView imageView) throws IOException {
+    public void displayImage(Mat image, ImageView imageView)  {
 
         Rect rect = new Rect();
 
@@ -272,7 +275,13 @@ public class TestOpenCVApplication extends Application {
 
         //Displaying the image
         InputStream in = new ByteArrayInputStream(byteArray);
-        BufferedImage bufImage = ImageIO.read(in);
+
+        BufferedImage bufImage;
+        try {
+            bufImage = ImageIO.read(in);
+        } catch (IOException e) {
+            return;
+        }
 
         WritableImage writableImage = SwingFXUtils.toFXImage(bufImage, null);
 

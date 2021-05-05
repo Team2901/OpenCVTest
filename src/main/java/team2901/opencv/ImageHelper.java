@@ -1,8 +1,6 @@
 package team2901.opencv;
 
-import javafx.stage.FileChooser;
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ public class ImageHelper {
 
     public static Mat getChannelMat(Mat originalImage, int channel, int kernels) {
         Mat mat = getBlurMat(originalImage, kernels);
-        List<Mat> list = new ArrayList<Mat>();
+        List<Mat> list = new ArrayList<>();
         Core.split(mat, list);
         return list.get(channel);
     }
@@ -29,9 +27,9 @@ public class ImageHelper {
         return blueMat;
     }
 
-    // https://opencv-java-tutorials.readthedocs.io/en/latest/07-image-segmentation.html#background-removal-result
-    public static Mat getCannyMat(Mat originalImage, int kernels, int threshold)
-    {
+    public static Mat getCannyMat(Mat originalImage, int kernels, int threshold) {
+        // https://opencv-java-tutorials.readthedocs.io/en/latest/07-image-segmentation.html#background-removal-result
+
         // init
         Mat grayImage = new Mat();
         Mat detectedEdges = new Mat();
@@ -53,21 +51,17 @@ public class ImageHelper {
         return dest;
     }
 
-
-    public static Mat doBackgroundRemoval(Mat frame, int kernels)
-    {
+    public static Mat doBackgroundRemoval(Mat originalImage, int kernels) {
         // init
         Mat hsvImg = new Mat();
         List<Mat> hsvPlanes = new ArrayList<>();
         Mat thresholdImg = new Mat();
 
         int thresh_type = Imgproc.THRESH_BINARY_INV;
-        //if (this.inverse.isSelected())
-        //    thresh_type = Imgproc.THRESH_BINARY;
 
         // threshold the image with the average hue value
-        hsvImg.create(frame.size(), CvType.CV_8U);
-        Imgproc.cvtColor(frame, hsvImg, Imgproc.COLOR_BGR2HSV);
+        hsvImg.create(originalImage.size(), CvType.CV_8U);
+        Imgproc.cvtColor(originalImage, hsvImg, Imgproc.COLOR_BGR2HSV);
         Core.split(hsvImg, hsvPlanes);
 
         // get the average hue value of the image
@@ -84,12 +78,11 @@ public class ImageHelper {
         Imgproc.threshold(thresholdImg, thresholdImg, threshValue, 179.0, Imgproc.THRESH_BINARY);
 
         // create the new image
-        Mat foreground = new Mat(frame.size(), CvType.CV_8UC3, new Scalar(255, 255, 255));
-        frame.copyTo(foreground, thresholdImg);
+        Mat foreground = new Mat(originalImage.size(), CvType.CV_8UC3, new Scalar(255, 255, 255));
+        originalImage.copyTo(foreground, thresholdImg);
 
         return foreground;
     }
-
 
     /**
      * Get the average hue value of the image starting from its Hue channel
@@ -101,8 +94,7 @@ public class ImageHelper {
      *            the Hue component of the current frame
      * @return the average Hue value
      */
-    private static double getHistAverage(Mat hsvImg, Mat hueValues)
-    {
+    private static double getHistAverage(Mat hsvImg, Mat hueValues) {
         // init
         double average = 0.0;
         Mat hist_hue = new Mat();
