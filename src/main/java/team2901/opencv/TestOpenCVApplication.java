@@ -37,6 +37,8 @@ import java.util.concurrent.CountDownLatch;
 
 public class TestOpenCVApplication extends Application {
 
+    public static final int MAX_IMAGE_HEIGHT = 700;
+
     public static final String SAMPLE_IMAGES_DIR = "src" + File.separator + "sample-images" + File.separator;
     public static final String DEFAULT_IMAGE = SAMPLE_IMAGES_DIR + "open-cv-logo.png";
 
@@ -254,8 +256,13 @@ public class TestOpenCVApplication extends Application {
         imageView.setFitHeight(image.height());
         imageView.setFitWidth(image.width());
         imageView.setPreserveRatio(true);
-        rect.height += image.height();
-        rect.width = image.width();
+
+        imageView.setSmooth(true);
+        imageView.setCache(true);
+
+        if (imageView.maxHeight(MAX_IMAGE_HEIGHT - 10) > MAX_IMAGE_HEIGHT ){
+            imageView.setFitHeight(MAX_IMAGE_HEIGHT - 10);
+        }
     }
 
     public Mat getTransformedImage(Mat originalImage, Transform selectedTransform) {
