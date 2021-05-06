@@ -18,11 +18,13 @@ import org.opencv.core.Rect;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /*
@@ -37,6 +39,9 @@ public class TestOpenCVApplication extends Application {
 
     public static final String SAMPLE_IMAGES_DIR = "src" + File.separator + "sample-images" + File.separator;
     public static final String DEFAULT_IMAGE = SAMPLE_IMAGES_DIR + "open-cv-logo.png";
+
+    public static final FileChooser.ExtensionFilter IMAGE_FILTER
+            = new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png");
 
     public static final CountDownLatch latch = new CountDownLatch(1);
     public static TestOpenCVApplication testJavaFXApplication = null;
@@ -105,13 +110,13 @@ public class TestOpenCVApplication extends Application {
         final Menu fileMenu = new Menu("File");
 
         final FileChooser fileChooser = new FileChooser();
+
+        fileChooser.getExtensionFilters().add(IMAGE_FILTER);
+
         final File file = new File(SAMPLE_IMAGES_DIR);
         if (!file.exists()) {
             file.mkdir();
         }
-
-        fileChooser.setInitialDirectory(file);
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
 
         // Open image menu item
         final MenuItem open = new MenuItem("Open");
